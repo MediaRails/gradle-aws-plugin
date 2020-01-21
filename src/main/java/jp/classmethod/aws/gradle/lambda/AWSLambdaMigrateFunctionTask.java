@@ -342,10 +342,12 @@ public class AWSLambdaMigrateFunctionTask extends ConventionTask {
 				MapDifference<String, String> tagDifferences =
 						Maps.difference(listTagsResult.getTags(), getTags());
 				
-				UntagResourceRequest untagResourceRequest = new UntagResourceRequest()
-					.withResource(config.getFunctionArn())
-					.withTagKeys(tagDifferences.entriesOnlyOnLeft().keySet());
-				lambda.untagResource(untagResourceRequest);
+				if (!tagDifferences.areEqual()) {
+					UntagResourceRequest untagResourceRequest = new UntagResourceRequest()
+						.withResource(config.getFunctionArn())
+						.withTagKeys(tagDifferences.entriesOnlyOnLeft().keySet());
+					lambda.untagResource(untagResourceRequest);
+				}
 			}
 			
 			if (!getTags().isEmpty()) {
